@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>9호선 뭐 탈까</title>
+</head>
+<body>
+    
+    <form name="selector">
+        <select id="start" onchange="stationChange()">
+            <option value=1>개화</option>
+            <option value=2>김포공항</option>
+            <option value=4>신방화</option>
+            <option value=3>공항시장</option>
+            <option value=5>마곡나루</option>
+            <option value=6>양천향교</option>
+            <option value=7>가양</option>
+            <option value=8>증미</option>
+            <option value=9>등촌</option>
+            <option value=10>염창</option>
+            <option value=11>신목동</option>
+            <option value=12>선유도</option>
+            <option value=13>당산</option>
+            <option value=14>국회의사당</option>
+            <option value=15>여의도</option>
+            <option value=16>샛강</option>
+            <option value=17>노량진</option>
+            <option value=18>노들</option>
+            <option value=19>흑석</option>
+            <option value=20>동작</option>
+            <option value=21>구반포</option>
+            <option value=22>신반포</option>
+            <option value=23>고속터미널</option>
+            <option value=24>사평</option>
+            <option value=25 selected>신논현</option>
+            <option value=26>언주</option>
+            <option value=27>선정릉</option>
+            <option value=28>삼성중앙</option>
+            <option value=29>봉은사</option>
+            <option value=30>종합운동장</option>
+            <option value=31>삼전</option>
+            <option value=32>석촌고분</option>
+            <option value=33>석촌</option>
+            <option value=34>송파나루</option>
+            <option value=35>한성백제</option>
+            <option value=36>올림픽공원</option>
+            <option value=37>둔촌오륜</option>
+            <option value=38>중앙보훈병원</option>
+        </select>
+
+		<input type=button value="↔" onclick="switchStations()">
+        
+        <select id="end" onchange="stationChange()">
+            <option value=1>개화</option>
+            <option value=2>김포공항</option>
+            <option value=4>신방화</option>
+            <option value=3>공항시장</option>
+            <option value=5>마곡나루</option>
+            <option value=6>양천향교</option>
+            <option value=7>가양</option>
+            <option value=8>증미</option>
+            <option value=9>등촌</option>
+            <option value=10>염창</option>
+            <option value=11>신목동</option>
+            <option value=12>선유도</option>
+            <option value=13>당산</option>
+            <option value=14>국회의사당</option>
+            <option value=15>여의도</option>
+            <option value=16>샛강</option>
+            <option value=17 selected>노량진</option>
+            <option value=18>노들</option>
+            <option value=19>흑석</option>
+            <option value=20>동작</option>
+            <option value=21>구반포</option>
+            <option value=22>신반포</option>
+            <option value=23>고속터미널</option>
+            <option value=24>사평</option>
+            <option value=25>신논현</option>
+            <option value=26>언주</option>
+            <option value=27>선정릉</option>
+            <option value=28>삼성중앙</option>
+            <option value=29>봉은사</option>
+            <option value=30>종합운동장</option>
+            <option value=31>삼전</option>
+            <option value=32>석촌고분</option>
+            <option value=33>석촌</option>
+            <option value=34>송파나루</option>
+            <option value=35>한성백제</option>
+            <option value=36>올림픽공원</option>
+            <option value=37>둔촌오륜</option>
+            <option value=38>중앙보훈병원</option>
+        </select>
+
+        <select id="day" onchange="dayChange()">
+            <option value="weekday">평일</option>
+            <option value="holiday">휴일</option>
+        </select>
+
+        <select id="time" onchange="timeChange()">
+        </select>
+    </form>
+	<p>
+		<div id="img">
+		</div>
+	</p>
+    <p>
+        <div id="result">
+        </div>
+    </p>
+
+    <p>
+        <div id="description">
+        </div>
+    </p>
+
+    <script src="script.js"></script>
+</body>
+</html>

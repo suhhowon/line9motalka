@@ -1,0 +1,27 @@
+.line9 {
+	background-color: #BDB092;
+	color: white;
+}
+
+.exp {
+	background-color: red;
+	color: white;
+}
+
+.allstop {
+	background-color: #D9D9D9;
+}
+
+.black {
+	background-color: black;
+	color: white;
+}
+
+a:link, a:visited, a:hover, a:active {
+	color: blue;
+	text-decoration: none;
+}
+
+.img_scale_down {
+	object-fit: scale-down;
+}
