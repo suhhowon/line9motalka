@@ -382,6 +382,54 @@ function getLastExp(start, end)
     return null;
 }
 
+function getEvacuations(start, end)
+{
+	let evacuations = [];
+
+    if(isUpbound())
+    {
+        for(let i = start + 1; i < end; i++)
+        {
+            if(isEvacuate(i))
+            {
+				evacuations.push(i);
+            }
+        }
+    }
+    else
+    {
+        for(let i = start - 1; i > end; i--)
+        {
+            if(isEvacuate(i))
+            {
+				evacuations.push(i);
+            }
+        }
+    }
+	
+	return evacuations;
+}
+
+function getEvacuationText(evacuations)
+{
+	let evacuationText;
+	
+	if(evacuations.length == 0)
+	{
+		return "경로 중 통과하는 대피역은 " + getSpanBlack("없습니다") + ".<p>";
+	}
+	
+	evacuationText = "경로 중 통과하는 대피역의 수는 " + getSpanBlack("&nbsp;" + evacuations.length + "&nbsp;") + "역입니다. (";
+	
+	for(let evacuation of evacuations)
+	{
+		evacuationText = evacuationText + getSpanLine9(getStationName(evacuation)) + ", ";
+	}
+     evacuationText = evacuationText.slice(0, evacuationText.length - 2) + ")<p>";
+	 
+	 return evacuationText;
+}
+
 function calculate()
 {
     let start = +form.start.value;
@@ -420,46 +468,12 @@ function calculate()
         htmlContent = htmlContent + getSpanAllstop("급행 통과") + "역입니다.<br>";
     }
 
-    let countEvacuate = 0;
-    let evacuateText = "(";
-    if(isUpbound())
-    {
-        for(let i = start + 1; i < end; i++)
-        {
-            if(isEvacuate(i))
-            {
-                countEvacuate++;
-                evacuateText = evacuateText + getSpanLine9(getStationName(i)) + ", ";
-            }
-        }
-    }
-    else
-    {
-        for(let i = start - 1; i > end; i--)
-        {
-            if(isEvacuate(i))
-            {
-                countEvacuate++;
-                evacuateText = evacuateText + getSpanLine9(getStationName(i)) + ", ";
-            }
-        }
-    }
+	let evacuations = getEvacuations(start, end);
+	htmlContent = htmlContent + getEvacuationText(evacuations);
     
-    if(countEvacuate)
-    {
-		countEvacuate = "&nbsp;" + countEvacuate + "&nbsp;";
-        htmlContent = htmlContent + "경로 중 통과하는 대피역의 수는 " + getSpanBlack(countEvacuate) + "역입니다. ";
-        evacuateText = evacuateText.slice(0, evacuateText.length-2) + ")";
-        htmlContent = htmlContent + evacuateText + "<p>";
-    }
-    else
-    {
-        htmlContent = htmlContent + "경로 중 통과하는 대피역은 " + getSpanBlack("없습니다") + ".<p>";
-    }
-
     if(isExp(start) && isExp(end))
     {
-        if(countEvacuate == 0)
+        if(evacuations.length == 0)
         {
             htmlContent = htmlContent + getSpanBlack("먼저 오는 열차") + "를 타세요.";
         }
@@ -470,11 +484,11 @@ function calculate()
     }
     else if(isExp(start) && !isExp(end))
     {
-        if(countEvacuate == 0)
+        if(evacuations.length == 0)
         {
             htmlContent = htmlContent + getSpanAllstop("일반 열차") + "를 타세요.";
         }
-        else if(countEvacuate == 1)
+        else if(evacuations.length == 1)
         {
             htmlContent = htmlContent + getSpanBlack("먼저 오는 열차") + "를 타세요.<br>";
             htmlContent = htmlContent + "급행 열차를 탔다면 목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
@@ -487,7 +501,7 @@ function calculate()
     }
     else if(!isExp(start) && isExp(end))
     {
-        if(countEvacuate == 0)
+        if(evacuations.length == 0)
         {
             htmlContent = htmlContent + getSpanAllstop("일반 열차") + "를 타세요.";
         }
@@ -499,7 +513,7 @@ function calculate()
     }
     else
     {
-        if(countEvacuate <= 1)
+        if(evacuations.length <= 1)
         {
             htmlContent = htmlContent + getSpanAllstop("일반 열차") + "를 타세요.";
         }
@@ -630,8 +644,4 @@ if(storedEnd)
 }
 
 timespanChanged();
-//changeImage(time.value);
 calculate();
-
-//출발<->도착
-//이미지
