@@ -28,18 +28,33 @@ function isEvacuate(stationNumber)
     return stations[stationNumber].evacuate;
 }
 
+function getCurrentDay()
+{
+    let now = new Date();
+    let day = now.getDay();
+
+    if(day <= 1)
+    {
+        return "holiday"
+    }
+    else
+    {
+        return "weekday"
+    }
+}
+
 function getCurrentTimespan()
 {
 	let now = new Date();
 
-	let day = now.getDay();
+//	let day = now.getDay();
 	let hour = now.getHours();
 	let minute = now.getMinutes();
 
-	if(day <=1)
+/* 	if(day <= 1)
 	{
 		return "allday";
-	}
+	} */
 	
 	if (isUpbound())
 	{
@@ -198,16 +213,52 @@ function changeImage(timespan)
 	let newDiv = document.createElement('div');
 	newDiv.id = "img";
 
-	let htmlContent = `<img src="` + timespan + `.jpg" width=100% height=auto">`;
+	let htmlContent = "";
+	
+	if(form.day.value == "holiday")
+	{
+		htmlContent = getSpanBlack("휴일") + "의 대피역은 ";
+	}
+	else
+	{
+        htmlContent = getSpanBlack("평일") + " ";
+        if(isUpbound())
+        {
+            htmlContent = htmlContent + getSpanBlack("상행") + " ";
+        }
+        else
+        {
+            htmlContent = htmlContent + getSpanBlack("하행") + " ";
+        }
+		htmlContent = htmlContent + getSpanBlack(form.time.options[form.time.selectedIndex].text) + " 시간대의 대피역은 ";
+	}
+	let evacuations;
+	if(isUpbound())
+	{
+		evacuations = getEvacuations(1, stations.length - 1);
+	}
+	else
+	{
+		evacuations = getEvacuations(stations.length - 1, 1);
+	}
+	if(evacuations.length)
+	{
+		htmlContent = htmlContent + getEvacuationText(evacuations) + "입니다.<br>";
+	}
+	else
+	{
+		htmlContent = htmlContent + "없습니다.<br>";
+	}
+	
+	htmlContent = htmlContent + `<img src="` + timespan + `.jpg" width=100% height=auto">`;
 	newDiv.innerHTML = htmlContent;
     img.replaceWith(newDiv);
-    //alert("image changed");
 }
 	
 function timespanChanged()
 {
     setTimeOptions();
-    setEvacuate();
+//    setEvacuate();
 
     let newDiv = document.createElement('div');
     newDiv.id = "description"
@@ -247,7 +298,6 @@ function setTimeOptions()
     if(form.day.value == "holiday")
     {
         time.append(new Option("종일", "allday"));
-        changeImage(time.value);
         return;
     }
 
@@ -270,7 +320,6 @@ function setTimeOptions()
         time.append(new Option("22:48~", "2248"));
     }
 	time.value = getCurrentTimespan();
-    changeImage(time.value);
 }	
 
 function setEvacuate()
@@ -412,20 +461,18 @@ function getEvacuations(start, end)
 
 function getEvacuationText(evacuations)
 {
-	let evacuationText;
+	let evacuationText = "";
 	
 	if(evacuations.length == 0)
 	{
-		return "경로 중 통과하는 대피역은 " + getSpanBlack("없습니다") + ".<p>";
+		return "";
 	}
-	
-	evacuationText = "경로 중 통과하는 대피역의 수는 " + getSpanBlack("&nbsp;" + evacuations.length + "&nbsp;") + "역입니다. (";
 	
 	for(let evacuation of evacuations)
 	{
 		evacuationText = evacuationText + getSpanLine9(getStationName(evacuation)) + ", ";
 	}
-     evacuationText = evacuationText.slice(0, evacuationText.length - 2) + ")<p>";
+     evacuationText = evacuationText.slice(0, evacuationText.length - 2);
 	 
 	 return evacuationText;
 }
@@ -441,11 +488,11 @@ function calculate()
     let htmlContent = getSpanLine9(getStationName(start)) + "역 출발 " + getSpanLine9(getStationName(end)) + "역 도착은 ";
     if(isUpbound())
     {
-        htmlContent = htmlContent + getSpanBlack("상행") + "입니다.<br>";
+        htmlContent = htmlContent + getSpanBlack("상행") + ", " + getSpanLine9("중앙보훈병원") + "행입니다.<br>";
     }
     else
     {
-        htmlContent = htmlContent + getSpanBlack("하행") + "입니다.<br>";
+        htmlContent = htmlContent + getSpanBlack("하행") + ", " + getSpanLine9("개화") + "행입니다.<br>";
     }
 
     htmlContent = htmlContent + getSpanLine9(getStationName(start)) + "역은 ";
@@ -469,8 +516,16 @@ function calculate()
     }
 
 	let evacuations = getEvacuations(start, end);
-	htmlContent = htmlContent + getEvacuationText(evacuations);
-    
+	if(evacuations.length == 0)
+	{
+		htmlContent = htmlContent + "경로 중 통과하는 대피역은 " + getSpanBlack("없습니다") + ".<p>";
+	}
+	else
+	{
+		htmlContent = htmlContent + "경로 중 통과하는 대피역의 수는 " + getSpanBlack("&nbsp;" + evacuations.length + "&nbsp;") + "역입니다. (";
+		htmlContent = htmlContent + getEvacuationText(evacuations) + ")<p>";
+    }
+	
     if(isExp(start) && isExp(end))
     {
         if(evacuations.length == 0)
@@ -490,13 +545,13 @@ function calculate()
         }
         else if(evacuations.length == 1)
         {
-            htmlContent = htmlContent + getSpanBlack("먼저 오는 열차") + "를 타세요.<br>";
-            htmlContent = htmlContent + "급행 열차를 탔다면 목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
+            htmlContent = htmlContent + "1. " + getSpanBlack("먼저 오는 열차") + "를 타세요.<br>";
+            htmlContent = htmlContent + "2. 급행 열차를 탔다면 목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
         }
         else
         {
-            htmlContent = htmlContent + getSpanExp("급행 열차") + "를 타세요.<br>";
-            htmlContent = htmlContent + "목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
+            htmlContent = htmlContent + "1. " + getSpanExp("급행 열차") + "를 타세요.<br>";
+            htmlContent = htmlContent + "2. 목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
         }
     }
     else if(!isExp(start) && isExp(end))
@@ -507,8 +562,8 @@ function calculate()
         }
         else
         {
-            htmlContent = htmlContent + getSpanAllstop("일반 열차") + "를 타세요.<br>";
-            htmlContent = htmlContent + "가장 가까운 급행 정차역인 " + getSpanLine9(getStationName(getNextExp(start, end))) + "역에서 " + getSpanExp("급행 열차") + "로 갈아타세요.";
+            htmlContent = htmlContent + "1. " + getSpanAllstop("일반 열차") + "를 타세요.<br>";
+            htmlContent = htmlContent + "2. 가장 가까운 급행 정차역인 " + getSpanLine9(getStationName(getNextExp(start, end))) + "역에서 " + getSpanExp("급행 열차") + "로 갈아타세요.";
         }
     }
     else
@@ -519,9 +574,9 @@ function calculate()
         }
         else
         {
-            htmlContent = htmlContent + getSpanAllstop("일반 열차") + "를 타세요.<br>";
-            htmlContent = htmlContent + "가장 가까운 급행 정차역인 " + getSpanLine9(getStationName(getNextExp(start, end))) + "역에서 " + getSpanExp("급행 열차") + "로 갈아타세요.<br>";
-            htmlContent = htmlContent + "목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
+            htmlContent = htmlContent + "1. " + getSpanAllstop("일반 열차") + "를 타세요.<br>";
+            htmlContent = htmlContent + "2. 가장 가까운 급행 정차역인 " + getSpanLine9(getStationName(getNextExp(start, end))) + "역에서 " + getSpanExp("급행 열차") + "로 갈아타세요.<br>";
+            htmlContent = htmlContent + "3. 목적지 직전의 급행 정차역인 " + getSpanLine9(getStationName(getLastExp(start, end))) + "역에서 " + getSpanAllstop("일반 열차") + "로 갈아타세요.";
         }
     }
 
@@ -554,6 +609,7 @@ function stationChange()
     if(upbound != wasUpbound)
     {
         timespanChanged();
+        timeChange();
         wasUpbound = upbound;
     }
 
@@ -571,22 +627,14 @@ function switchStations()
 function dayChange()
 {
     timespanChanged();
-    calculate();
+	timeChange();
 }
 
 function timeChange()
 {
-    changeImage(time.value);
 	setEvacuate();
-    calculate();
-}
-
-function getCookie(name)
-{
-  let matches = document.cookie.match(new RegExp(
-    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-  ));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
+	changeImage(form.time.value);
+	calculate();
 }
 
 let form = document.forms.selector;
@@ -643,5 +691,5 @@ if(storedEnd)
 	end.value = storedEnd;
 }
 
-timespanChanged();
-calculate();
+form.day.value = getCurrentDay();
+dayChange();
